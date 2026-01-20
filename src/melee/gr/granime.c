@@ -45,8 +45,6 @@
                                           void* arg4);
 /* 1C7228 */ static void grAnime_801C7228(HSD_JObj* obj, int flags, void* func,
                                           u32 type, void* param, int arg5);
-/* 1C775C */ static void grAnime_801C775C(HSD_GObj* gobj, int arg1, u32 arg2,
-                                          f32 arg8, f32 arg9);
 /* 1C7B24 */ static void grAnime_801C7B24(HSD_GObj* gobj, int arg1, u32 arg2,
                                           f32 arg8);
 /* 1C7BA0 */ static void grAnime_801C7BA0(HSD_GObj* gobj, int arg1, u32 arg2,
@@ -574,7 +572,7 @@ void grAnime_801C78FC(HSD_GObj* gobj, int arg1, u32 arg2)
     if (arg2 & 4) {
         var_r31 |= 0x100;
     }
-    grAnime_801C752C(jobj, 1, var_r31, HSD_AObjClearFlags, 3, 0x20000000);
+    grAnime_801C752C(jobj, 1, var_r31, HSD_AObjClearFlags, 3, AOBJ_LOOP);
 }
 
 void grAnime_801C7980(HSD_GObj* gobj, int arg1, u32 arg2)
@@ -593,7 +591,7 @@ void grAnime_801C7980(HSD_GObj* gobj, int arg1, u32 arg2)
     if (arg2 & 4) {
         var_r31 |= 0x100;
     }
-    grAnime_801C752C(jobj, 0, var_r31, HSD_AObjClearFlags, 3, 0x20000000);
+    grAnime_801C752C(jobj, 0, var_r31, HSD_AObjClearFlags, 3, AOBJ_LOOP);
 }
 
 void grAnime_801C7A04(HSD_GObj* gobj, int arg1, u32 arg2, f32 val)

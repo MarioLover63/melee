@@ -1,5 +1,7 @@
 #include "lbmthp.static.h"
 
+#include <dolphin/gx/GXTexture.h>
+#include <sysdolphin/baselib/sobjlib.h>
 #include <melee/lb/lbanim.h>
 #include <melee/lb/types.h>
 
@@ -34,14 +36,14 @@ s32 fn_8001EBF0(THPDecComp* data)
     aligned_100 = ALIGN_32(aligned_100);
 
     /* Store width */
-    data->unk_A0 = (u16)width;
+    data->unk_A0 = (u16) width;
 
     /* Multiply width * height */
     wh = width * height;
 
     /* Reload and store height */
     height = data->height;
-    data->unk_A2 = (u16)height;
+    data->unk_A2 = (u16) height;
 
     /* size = aligned * unk_104 */
     size = aligned_100 * unk_104_val;
@@ -61,7 +63,7 @@ s32 fn_8001EBF0(THPDecComp* data)
     size += wh_div4;
 
     /* Call THPDec_8032FD40 with &unk_9C and height as u16 */
-    size += THPDec_8032FD40(&data->unk_9C, (u16)data->height);
+    size += THPDec_8032FD40(&data->unk_9C, (u16) data->height);
 
     /* Zero various fields */
     data->unk_7C = 0;
@@ -74,8 +76,8 @@ s32 fn_8001EBF0(THPDecComp* data)
     data->unk_68 = 0;
 
     /* Copy width/height again */
-    data->unk_A8 = (u16)data->width;
-    data->unk_AA = (u16)data->height;
+    data->unk_A8 = (u16) data->width;
+    data->unk_AA = (u16) data->height;
     data->unk_AC = 0;
 
     /* Add aligned sizes */
@@ -145,8 +147,50 @@ void lbMthp_8001F87C(void)
     lbl_804333E0.unk_14C = 0;
 }
 
-/// #lbMthp8001F890
+void* lbMthp8001F890(HSD_GObj* gobj)
+{
+    lbl_804335B8.x70 = 0;
+    lbl_804335B8.x74 = lbl_804335B8.x6C;
+    lbl_804335B8.x76 = lbl_804335B8.x6E;
+    lbl_804335B8.x78 = 6;
+    lbl_804335B8.x7C = 0;
+    lbl_804335B8.x84 = lbl_804D7CE0;
+    lbl_804335B8.x80 = lbl_804D7CE0;
+    lbl_804335B8.x88 = &lbl_804335B8.x70;
+    lbl_804335B8.x8C = 0;
+    lbl_804335B8.x90 = (struct HSD_SObj_803A477C_t_ext*) HSD_SObjLib_803A477C(
+        gobj, (int) &lbl_804335B8.x88, 0, 0, 0x80, 0);
+    lbl_804335B8.x90->x40 |= 0x10;
+    return lbl_804335B8.x90;
+}
 
-/// #lbMthp8001F928
+void lbMthp8001F928(HSD_GObj* gobj, int arg1)
+{
+    u16* pWidth = &lbl_804335B8.x6C;
+    u16* pHeight = &lbl_804335B8.x6E;
+
+    /* First texture - full size */
+    GXInitTexObj(&lbl_804335B8.tex0, lbl_804335B8.x20, lbl_804335B8.x6C,
+                 lbl_804335B8.x6E, 1, 0, 0, 0);
+    GXInitTexObjLOD(&lbl_804335B8.tex0, 0, 0, lbl_804D7CE0, lbl_804D7CE0,
+                    lbl_804D7CE0, 0, 0, 0);
+    GXLoadTexObj(&lbl_804335B8.tex0, 0);
+
+    /* Second texture - half size */
+    GXInitTexObj(&lbl_804335B8.tex1, lbl_804335B8.x44, (u16) (*pWidth >> 1),
+                 (u16) (*pHeight >> 1), 1, 0, 0, 0);
+    GXInitTexObjLOD(&lbl_804335B8.tex1, 0, 0, lbl_804D7CE0, lbl_804D7CE0,
+                    lbl_804D7CE0, 0, 0, 0);
+    GXLoadTexObj(&lbl_804335B8.tex1, 1);
+
+    /* Third texture - half size */
+    GXInitTexObj(&lbl_804335B8.tex2, lbl_804335B8.x68, (u16) (*pWidth >> 1),
+                 (u16) (*pHeight >> 1), 1, 0, 0, 0);
+    GXInitTexObjLOD(&lbl_804335B8.tex2, 0, 0, lbl_804D7CE0, lbl_804D7CE0,
+                    lbl_804D7CE0, 0, 0, 0);
+    GXLoadTexObj(&lbl_804335B8.tex2, 2);
+
+    HSD_SObjLib_803A49E0(gobj, arg1);
+}
 
 /// #lbMthp8001FAA0

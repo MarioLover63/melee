@@ -4,11 +4,14 @@
 #include <placeholder.h>
 #include <platform.h>
 
+#include "ft/forward.h"
+
 #include "ft/types.h"
 
-#include "ft/forward.h"
 #include "ftCommon/forward.h"
+
 #include "ftCommon/ftCo_AttackDash.h"
+
 #include "ftKirby/forward.h"
 #include "it/forward.h"
 #include <baselib/forward.h>
@@ -26,11 +29,12 @@
 /* 0EEA24 */ void ftKb_Init_OnItemVisible(Fighter_GObj* gobj);
 /* 0EEA6C */ void ftKb_Init_OnItemDrop(Fighter_GObj* gobj, bool);
 /* 0EEAC0 */ void ftKb_Init_LoadSpecialAttrs(Fighter_GObj* gobj);
-/* 0EEB00 */ void ftKb_Init_800EEB00(Fighter_GObj* gobj, ArticleDynamicBones**);
+/* 0EEB00 */ void ftKb_Init_800EEB00(Fighter_GObj* gobj,
+                                     ArticleDynamicBones**);
 /* 0EEB1C */ void ftKb_Init_800EEB1C(Fighter_GObj* gobj, s32* arg1);
 /* 0EEB38 */ void ftKb_Init_OnKnockbackEnter(Fighter_GObj* gobj);
 /* 0EEB7C */ void ftKb_Init_OnKnockbackExit(Fighter_GObj* gobj);
-/* 0EEBC0 */ void ftKb_Init_UnkDemoCallbacks0(int, int*, int*);
+/* 0EEBC0 */ void ftKb_Init_UnkDemoCallbacks0(int kind, int* out1, int* out2);
 /* 0EEBF8 */ char* ftKb_Init_GetMotionFileString(enum_t);
 /* 0EEC34 */ void ftKb_SpecialN_800EEC34(int, int, int);
 /* 0EED50 */ void ftKb_SpecialN_800EED50(s32, s32);
@@ -97,7 +101,7 @@
 /* 0F12C8 */ void ftKb_SpecialN_800F12C8(Fighter_GObj* gobj);
 /* 0F130C */ void ftKb_SpecialN_800F130C(Fighter_GObj* gobj);
 /* 0F13F0 */ void ftKb_SpecialN_800F13F0(Fighter_GObj* gobj);
-/* 0F1420 */ void ftKb_SpecialN_800F1420(Fighter_GObj* gobj);
+/* 0F1420 */ void ftKb_SpecialN_800F1420(Fighter_GObj* gobj, u32* arg1);
 /* 0F14B4 */ void ftKb_SpecialN_800F14B4(Fighter_GObj* gobj);
 /* 0F15D8 */ void ftKb_SpecialN_800F15D8(Fighter_GObj* gobj);
 /* 0F1630 */ void ftKb_SpecialN_Enter(Fighter_GObj* gobj);
@@ -612,7 +616,8 @@
 /* 100E0C */ /// #fn_80100E0C
 /* 100F60 */ void fn_80100F60(Fighter_GObj* gobj);
 /* 100F94 */ void ftKb_SpecialNPr_80100F94(Fighter_GObj* gobj);
-/* 1010D4 */ void ftKb_SpecialNPr_801010D4(Fighter_GObj* gobj);
+/* 1010D4 */ void ftKb_SpecialNPr_801010D4(Fighter_GObj* gobj, bool unk,
+                                           MotionFlags flags, float anim_start);
 /* 10131C */ void ftKb_SpecialNPr_8010131C(Fighter_GObj* gobj);
 /* 10140C */ void ftKb_SpecialNPr_8010140C(Fighter_GObj* gobj);
 /* 101560 */ void ftKb_SpecialNPr_80101560(Fighter_GObj* gobj);
@@ -768,7 +773,8 @@
 /* 108B50 */ void ftKb_MtSpecialAirNLoopFull_Coll(Fighter_GObj* gobj);
 /* 108BD8 */ void ftKb_MtSpecialAirNCancel_Coll(Fighter_GObj* gobj);
 /* 108C60 */ void ftKb_MtSpecialAirNEnd_Coll(Fighter_GObj* gobj);
-/* 108CE8 */ void ftKb_SpecialNIc_80108CE8(Fighter_GObj* gobj, Item_GObj* it_gobj);
+/* 108CE8 */ void ftKb_SpecialNIc_80108CE8(Fighter_GObj* gobj,
+                                           Item_GObj* it_gobj);
 /* 108D04 */ void ftKb_SpecialNIc_80108D04(Fighter_GObj* gobj);
 /* 108D64 */ void ftKb_SpecialNIc_80108D64(Fighter_GObj* gobj);
 /* 108E14 */ void ftKb_SpecialNIc_80108E14(Fighter_GObj* gobj);
@@ -839,6 +845,7 @@
 /* 10A86C */ void ftKb_YsSpecialAirN2_1_Coll(Fighter_GObj* gobj);
 /* 10A894 */ void ftKb_YsSpecialAirN2_0_Coll(Fighter_GObj* gobj);
 /* 10A8BC */ void ftKb_SpecialNYs_8010A8BC(Fighter_GObj* gobj);
+/* 10A930 */ void fn_8010A930(Fighter_GObj* gobj, Fighter_GObj* attacker_gobj);
 /* 10AA1C */ void ftCo_CaptureKirbyYoshi_Anim(Fighter_GObj* gobj);
 /* 10AA20 */ void ftCo_CaptureKirbyYoshi_IASA(Fighter_GObj* gobj);
 /* 10AA24 */ void ftCo_CaptureKirbyYoshi_Phys(Fighter_GObj* gobj);

@@ -3,12 +3,12 @@
 #include <placeholder.h>
 #include <platform.h>
 
-#include "it/inlines.h"
-#include "it/it_26B1.h"
-#include "it/it_266F.h"
 #include "gm/gm_1BA8.h"
-#include "it/item.h"
+#include "it/inlines.h"
+#include "it/it_266F.h"
+#include "it/it_26B1.h"
 #include "it/it_2725.h"
+#include "it/item.h"
 
 /// #it_8029B0C8
 
@@ -25,7 +25,14 @@ void it_3F14_Logic42_Spawned(Item_GObj* gobj)
     it_8029B268(gobj);
 }
 
-/// #it_8029B1D8
+void it_8029B1D8(Item_GObj* gobj)
+{
+    Item* ip = GET_ITEM(gobj);
+    PAD_STACK(4);
+    it_8026B390(gobj);
+    itResetVelocity(ip);
+    Item_80268E5C(gobj, 0, ITEM_ANIM_UPDATE);
+}
 
 bool itEvyoshiegg_UnkMotion0_Anim(Item_GObj* gobj)
 {
@@ -93,7 +100,13 @@ void itEvyoshiegg_UnkMotion3_Phys(Item_GObj* gobj)
     it_80274658(gobj, it_804D6D28->x68_float);
 }
 
-/// #itEvyoshiegg_UnkMotion3_Coll
+bool itEvyoshiegg_UnkMotion3_Coll(Item_GObj* gobj)
+{
+    if (it_8026DA08(gobj)) {
+        return it_3F14_Logic42_DmgDealt(gobj);
+    }
+    return false;
+}
 
 /// #itEvyoshiegg_UnkMotion5_Anim
 

@@ -1,14 +1,15 @@
 #include "itrshell.h"
 
 #include "m2c_macros.h"
+
 #include <placeholder.h>
 #include <platform.h>
 
 #include "it/inlines.h"
-#include "it/it_26B1.h"
 #include "it/it_266F.h"
-#include "it/item.h"
+#include "it/it_26B1.h"
 #include "it/it_2725.h"
+#include "it/item.h"
 
 /// #it_8028CFE0
 
@@ -40,9 +41,10 @@ s32 it_8028D390(Item_GObj* gobj)
 
 f32 it_8028D56C(Item_GObj* gobj, f32 f1, f32 f2)
 {
-    itRshellAttributes* attrs = GET_ITEM(gobj)->xC4_article_data->x4_specialAttributes;
-    f32 f = (f1*-attrs->x14.x) + (-attrs->x14.y*f2);
-    return f*attrs->x14.z;
+    itRshellAttributes* attrs =
+        GET_ITEM(gobj)->xC4_article_data->x4_specialAttributes;
+    f32 f = (f1 * -attrs->x14.x) + (-attrs->x14.y * f2);
+    return f * attrs->x14.z;
 }
 
 /// #it_3F14_Logic15_Spawned
@@ -75,9 +77,23 @@ void itRshell_UnkMotion1_Phys(Item_GObj* gobj)
     it_80272860(gobj, attrs->x10_fall_speed, attrs->x14_fall_speed_max);
 }
 
-/// #itRshell_UnkMotion1_Coll
+bool itRshell_UnkMotion1_Coll(Item_GObj* gobj)
+{
+    Item* ip = GET_ITEM(gobj);
+    if (ip->xDD4_itemVar.rshell.xDE8 != 0) {
+        it_8026E32C(gobj, it_8028D62C);
+    } else {
+        return it_8026DF34(gobj);
+    }
+    return false;
+}
 
-/// #it_3F14_Logic15_PickedUp
+void it_3F14_Logic15_PickedUp(Item_GObj* gobj)
+{
+    PAD_STACK(8);
+    it_80275474(gobj);
+    Item_80268E5C(gobj, 2, ITEM_ANIM_UPDATE);
+}
 
 bool itRshell_UnkMotion2_Anim(Item_GObj* gobj)
 {
@@ -160,7 +176,13 @@ void itRshell_UnkMotion7_Phys(Item_GObj* gobj) {}
 
 /// #it_3F14_Logic15_DmgReceived
 
-/// #it_3F14_Logic15_Reflected
+bool it_3F14_Logic15_Reflected(Item_GObj* gobj)
+{
+    Item* ip = GET_ITEM(gobj);
+    it_80273030(gobj);
+    ip->xDD4_itemVar.rshell.xDD4 = ip->xD48_halfLifeTimer;
+    return false;
+}
 
 bool it_3F14_Logic15_Clanked(Item_GObj* gobj)
 {
@@ -170,7 +192,14 @@ bool it_3F14_Logic15_Clanked(Item_GObj* gobj)
 
 /// #it_3F14_Logic15_HitShield
 
-/// #it_3F14_Logic15_ShieldBounced
+bool it_3F14_Logic15_ShieldBounced(Item_GObj* gobj)
+{
+    Item* ip = GET_ITEM(gobj);
+    if (ip->msid == 3 || ip->msid == 4) {
+        itColl_BounceOffShield(gobj);
+    }
+    return false;
+}
 
 /// #it_8028E6C0
 

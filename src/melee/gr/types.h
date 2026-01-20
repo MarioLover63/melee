@@ -296,14 +296,20 @@ struct grKraid_GroundVars {
 };
 
 struct grCorneria_GroundVars {
-    struct {
-        u8 b0 : 1;
-        u8 b1 : 1;
-    } xC4_flags;
+    union {
+        struct {
+            u8 b0 : 1;
+            u8 b1 : 1;
+        } flags;
+        u8 value;
+    } xC4;
     u8 xC5;
-    struct {
-        u8 b0 : 1;
-    } xC6_flags;
+    union {
+        struct {
+            u8 b0 : 1;
+        } flags;
+        u8 value;
+    } xC6;
     u8 xC7;
     u32 xC8;
     u32 xCC;
@@ -341,6 +347,48 @@ struct grCorneria_GroundVars {
     HSD_JObj* x12C;
 };
 
+struct grVenom_GroundVars {
+    u32 xC4;
+    u32 xC8;
+    u32 xCC;
+    u32 xD0;
+    f32 xD4;
+    f32 xD8;
+    f32 xDC;
+    f32 xE0;
+    f32 xE4;
+    f32 xE8;
+    f32 xEC;
+};
+
+struct grArwing_GroundVars {
+    u32 xC4;
+    u32 xC8;
+    u32 xCC;
+    u32 xD0;
+    f32 xD4;
+    f32 xD8;
+    f32 xDC;
+    f32 xE0;
+    f32 xE4;
+    f32 xE8;
+    f32 xEC;
+};
+
+struct grSmashTaunt_GroundVars {
+    u32 xC4;
+    u32 xC8;
+    u32 xCC;
+    u32 xD0;
+    f32 xD4;
+    f32 xD8;
+    f32 xDC;
+    f32 xE0;
+    void* xE4;
+    f32 xE8;
+    f32 xEC;
+};
+
 struct grGreatBay_GroundVars {
     u8 _0[0x10];
     u32 x10;
@@ -349,9 +397,21 @@ struct grGreatBay_GroundVars {
     f32 x1C;
 };
 
+struct grGarden_GroundVars { // Cranky Kong
+    s32 xc4;
+    s32 xc8;
+};
+
+struct grGarden_GroundVars2 { // Klaptrap
+    // HSD_GObj* xc4;
+    Item_GObj* xc4;
+    s8 xc8;
+    s32 xcc;
+};
+
 struct grIceMt_GroundVars {
-    /* +0 gp+C4 */ HSD_GObj* xC4;
-    /* +0 gp+C4 */ HSD_GObj* xC6;
+    /* +0 gp+C4 */ s16 xC4;
+    /* +0 gp+C4 */ s16 xC6;
     /* +0 gp+C4 */ s16 xC8;
     /* +0 gp+C4 */ s16 xCA;
     /* +0 gp+C4 */ s16 xCC;
@@ -365,7 +425,11 @@ struct grIceMt_GroundVars {
     /* +0 gp+D8 */ s16 xDE;
     /* +0 gp+D8 */ s16 xE0;
     /* +0 gp+D8 */ f32 xE4;
-    /* +0 gp+D8 */ void* xF4[6];
+    /* +0 gp+D8 */ u32 xE8;
+    /* +0 gp+D8 */ u32 xEC;
+    /* +0 gp+D8 */ u32 xF0; // padding
+    /* +0 gp+D8 */ s16 xF4[2];
+    /* +0 gp+D8 */ HSD_GObj* xF8[5];
 };
 struct grIceMt_GroundVars2 {
     /* +0 gp+C4 */ f32 xC4;
@@ -557,9 +621,13 @@ struct grYorster_GroundVars {
 
 struct grZebes_GroundVars {
     /*  +0 gp+C4:0 */ u8 x0_b0 : 1;
-    /*  +4 gp+C8 */ UNK_T x4;
+    /*  +4 gp+C8 */ u32 x4;
     /*  +8 gp+CC */ UNK_T x8;
     /*  +C gp+D0 */ Vec3 xC;
+};
+
+struct grZebes_GroundVars2 {
+    /*  +0 gp+C4 */ u16 xC4;
 };
 
 struct grFigureGet_GroundVars {
@@ -573,6 +641,7 @@ struct grFourside_GroundVars {
     /*  +0 gp+C4 */ u8 x0;
     /*  +1 gp+C5 */ u8 x1;
     /*  +4 gp+C8 */ s32 x4;
+    /*  +4 gp+CC */ s32 x8;
 };
 
 struct grGreens_BlockVars {
@@ -618,6 +687,40 @@ struct grGreens_GroundVars {
     /* +1C gp+E0 */ int x1C;
 };
 
+struct grMuteCity_GroundVars {
+    /* +0x00 gp+C4) */ u32 xC4;
+    /* +0x00 gp+C8) */ u32 xC8;
+    /* +0x00 gp+CC) */ u32 xCC;
+    /* +0x00 gp+D0) */ struct {
+        u8 b0 : 1;
+        u8 b1 : 1;
+        u8 b2 : 1;
+        u8 b3 : 1;
+        u8 b4 : 1;
+        u8 b5 : 1;
+        u8 b6 : 1;
+        u8 b7 : 1;
+    } xD0_flags;
+    /* +0x00 gp+D1) */ u8 pad2[0x110 - 0xD1];
+    /* +0x00 gp+110) */ HSD_LObj* x110;
+};
+
+struct grMuteCity_GroundVars2 {
+    /* +0x00 gp+C4) */ struct {
+        u8 b0 : 1;
+        u8 b1 : 1;
+        u8 b2 : 1;
+        u8 b3 : 1;
+        u8 b4 : 1;
+        u8 b5 : 1;
+        u8 b6 : 1;
+        u8 b7 : 1;
+    } xC4_flags;
+    /* +0x00 gp+C8) */ HSD_JObj* xC8;
+    /* +0x00 gp+CC) */ f32 xCC;
+    /* +0x00 gp+D0) */ f32 xD0;
+};
+
 /// Onett collision element (0x1C bytes)
 /// Callback for joints 0 and 1; could be awning hit tracking?
 /// (counter, accumulator, state machine with reset timer)
@@ -636,21 +739,31 @@ struct grOnett_GroundVars {
     /*  +0 gp+C4:0 */ u8 x0_b0 : 1;
     u8 pad[0xCC - 0xC5];
     struct grOnett_AwningData awnings[2];
+    /*  +0 gp+104:0 */ CmSubject* x104;
 };
 
 struct grBigBlue_GroundVars {
     /*  +0 gp+C4:0 */ u8 x0_b0 : 1;
 };
 
+struct grBigBlueRoute_GroundVars {
+    /* +0 gp+C4 */ HSD_GObj* xC4;
+};
+
+struct grCastle_GroundVars {
+    /*  +0 gp+C4 */ u32 xC4;
+    /*  +0 gp+C8 */ s16 xC8;
+};
+
 struct grPura_GroundVars {
     /*  +0 gp+C4:0 */ u16 xC4;
-    /*  +0 gp+C4:0 */ s16 xC6;
-    /*  +0 gp+C4:0 */ HSD_JObj* xC8;
+    /*  +0 gp+C6:0 */ s16 xC6;
+    /*  +0 gp+C8:0 */ HSD_JObj* xC8;
 };
 
 struct grPura_GroundVars2 {
-    /*  +0 gp+C4:0 */ u32 xC4;
-    /*  +0 gp+C4:0 */ HSD_JObj* xC8;
+    /*  +0 gp+C4 */ u32 xC4;
+    /*  +0 gp+C8 */ HSD_JObj* xC8;
 };
 
 struct Randall {
@@ -748,7 +861,10 @@ struct Ground {
         /// @todo This union is named 'u', from assert statements
         union GroundVars {
             char pad_0[0x204 - 0xC4];
+            struct grArwing_GroundVars arwing;
             struct grBigBlue_GroundVars bigblue;
+            struct grBigBlueRoute_GroundVars bigblueroute;
+            struct grCastle_GroundVars castle;
             struct grCorneria_GroundVars corneria;
             struct grGreatBay_GroundVars greatbay;
             struct grFigureGet_GroundVars figureget;
@@ -756,6 +872,8 @@ struct Ground {
             struct GroundVars_flatzone2 flatzone2;
             struct grFourside_GroundVars fourside;
             struct grGreens_GroundVars greens;
+            struct grGarden_GroundVars garden;
+            struct grGarden_GroundVars2 garden2;
             struct grIceMt_GroundVars icemt;
             struct grIceMt_GroundVars2 icemt2;
             struct grInishie1_GroundVars inishie1;
@@ -771,12 +889,17 @@ struct Ground {
             struct grKongo_GroundVars2 kongo2;
             struct grKongo_GroundVars3 kongo3;
             struct grKraid_GroundVars kraid;
+            struct grMuteCity_GroundVars mutecity;
+            struct grMuteCity_GroundVars2 mutecity2;
             struct grOnett_GroundVars onett;
             struct grPura_GroundVars pura;
             struct grPura_GroundVars2 pura2;
+            struct grSmashTaunt_GroundVars smashtaunt;
             struct GroundVars_unk unk;
+            struct grVenom_GroundVars venom;
             struct grYorster_GroundVars yorster;
             struct grZebes_GroundVars zebes;
+            struct grZebes_GroundVars2 zebes2;
         } gv;
 
         /**
@@ -891,7 +1014,8 @@ struct UnkStageDat {
     void* unk0;
     s32 unk4;
 
-    struct UnkStageDat_x8_t* unk8;
+    struct UnkStageDat_x8_t* unk8; // Suspect this may not be a consistent type
+                                   // based on un_802FD708 callers
     s32 unkC;
 
     HSD_Spline** unk10;

@@ -4,6 +4,10 @@
 #include "platform.h"
 #include "stdbool.h"
 
+#include "ft/chara/ftCommon/ftCo_AirCatch.h"
+#include "ft/chara/ftCommon/ftCo_AttackAir.h"
+#include "ft/chara/ftCommon/ftCo_EscapeAir.h"
+#include "ft/chara/ftCommon/ftCo_SpecialAir.h"
 #include "ft/fighter.h"
 
 #include "ft/forward.h"
@@ -16,8 +20,10 @@
 
 #include "ftCommon/forward.h"
 
+#include "ftCommon/ftCo_CaptureCut.h"
 #include "ftCommon/ftCo_ItemThrow.h"
 #include "ftCommon/ftCo_Throw.h"
+#include "it/items/itsscope.h"
 
 #include <math.h>
 #include <melee/cm/camera.h>
@@ -66,7 +72,30 @@
 
 /* 0D8BFC */ static void fn_800D8BFC(Fighter_GObj* arg0);
 /* 0D9CE8 */ static void fn_800D9CE8(Fighter_GObj* arg0);
+/* 0DA054 */ void fn_800DA054(Fighter_GObj* gobj);
 /* 0DAADC */ static void fn_800DAADC(Fighter_GObj* arg0, Fighter_GObj* arg1);
+/* 0DAECC */ static void fn_800DAECC(Fighter_GObj* gobj);
+/* 0DAEEC */ void fn_800DAEEC(Fighter_GObj* gobj);
+/* 0DB230 */ static void fn_800DB230(Fighter_GObj* gobj);
+/* 0DBBF8 */ void fn_800DBBF8(Fighter_GObj* gobj);
+/* 0D949C */ static void fn_800D949C(void);
+/* 0D9C64 */ static void fn_800D9C64(Fighter_GObj* gobj);
+
+extern f32 ftCo_804D90D0; // 0.0f
+extern f32 ftCo_804D90D4; // Decrement value
+extern f64 ftCo_804D90D8; // Increment value (Double)
+
+typedef struct {
+    u8 pad_1A4C[0x1A4C];
+    f32 x1A4C; // 0x1A4C
+    u8 pad_1A58[0x1A58 - 0x1A50];
+    void* x1A58; // 0x1A58
+    u8 pad_2340[0x2340 - 0x1A5C];
+    f32 x2340; // 0x2340
+    f32 x2344; // 0x2344
+    s32 x2348; // 0x2348
+    u8 x234C;  // 0x234C
+} FighterOverlay;
 
 bool ftCo_800D67C4(Fighter* fp)
 {
@@ -441,7 +470,71 @@ void ftCo_ItemScopeStart_Anim(Fighter_GObj* gobj) {}
 
 void ftCo_ItemScopeAirStart_Anim(Fighter_GObj* gobj) {}
 
-/// #fn_800D79B4
+void fn_800D79B4(HSD_GObj* gobj, void (*cb_ground)(HSD_GObj*),
+                 void (*cb_air)(HSD_GObj*, int))
+{
+    Fighter* fp = GET_FIGHTER(gobj);
+    int item_val;
+    s32 stack_var;
+
+    // Define an overlay struct to force direct offset access (prevents address
+    // caching in r26/r27)
+    typedef struct {
+        u8 pad[0x2340];
+        f32 timer; // 0x2340
+        s32 flag;  // 0x2344
+    } FighterOverlay;
+    FighterOverlay* fp_ovl = (FighterOverlay*) fp;
+
+    // Use this specific cast to generate the correct 'lfs' instruction for the
+    // global int
+    extern int ftCo_804D9024;
+
+    if (fp->item_gobj == NULL) {
+        return;
+    }
+
+    // Access 0x2344 (Flag) via overlay
+    if (fp_ovl->flag == 0) {
+        // Access 0x65C (Input) via raw pointer to match ASM
+        if (*(u32*) ((u8*) fp + 0x65C) & HSD_PAD_A) {
+            // Access 0x2340 (Timer) via overlay
+            fp_ovl->timer += *(f32*) &ftCo_804D9024;
+        }
+    }
+
+    if (!(*(u32*) ((u8*) fp + 0x65C) & HSD_PAD_A)) {
+        fp_ovl->flag = 1;
+    }
+
+    // Timer to int conversion
+    stack_var = (s32) fp_ovl->timer;
+
+    item_val = it_80291DAC(fp->item_gobj, stack_var);
+
+    // Threshold check (Float vs Float)
+    if (fp_ovl->timer >= *(f32*) ((u8*) p_ftCommonData + 0x5B8)) {
+        if (!ftAnim_IsFramesRemaining(gobj)) {
+            cb_air(gobj, item_val);
+        }
+    }
+
+    if (fp_ovl->flag == 0) {
+        return;
+    }
+
+    if (ftAnim_IsFramesRemaining(gobj)) {
+        return;
+    }
+
+    stack_var = (s32) fp_ovl->timer;
+
+    if (it_80291CF4(fp->item_gobj, stack_var) == 0) {
+        cb_ground(gobj);
+    } else {
+        cb_air(gobj, item_val);
+    }
+}
 
 void ftCo_ItemScopeStart_IASA(Fighter_GObj* gobj)
 {
@@ -485,9 +578,22 @@ void ftCo_ItemScopeAirStart_Coll(Fighter_GObj* gobj)
 
 /// #ftCo_ItemScopeAirRapid_Anim
 
-/// #ftCo_ItemScopeRapid_IASA
+void ftCo_ItemScopeRapid_IASA(Fighter_GObj* gobj)
+{
+    Fighter* fp = GET_FIGHTER(gobj);
+    if (fp->input.x668 & HSD_PAD_A) {
+        *(s32*) ((u8*) fp + 0x2340) = *(s32*) ((u8*) p_ftCommonData + 0x5BC);
+    }
+}
 
-/// #ftCo_ItemScopeAirRapid_IASA
+void ftCo_ItemScopeAirRapid_IASA(Fighter_GObj* gobj)
+{
+    Fighter* fp = *(Fighter**) ((u8*) gobj + 0x2C);
+
+    if (fp->input.x668 & HSD_PAD_A) {
+        *(s32*) ((u8*) fp + 0x2340) = *(s32*) ((u8*) p_ftCommonData + 0x5BC);
+    }
+}
 
 void ftCo_ItemScopeRapid_Phys(Fighter_GObj* gobj)
 {
@@ -614,7 +720,10 @@ void ftCo_ItemScopeEnd_Coll(Fighter_GObj* gobj)
     ft_800841B8(gobj, fn_800D8838);
 }
 
-/// #ftCo_ItemScopeAirEnd_Coll
+void ftCo_ItemScopeAirEnd_Coll(Fighter_GObj* gobj)
+{
+    ft_80082C74(gobj, fn_800D87C0);
+}
 
 /// #ftCo_Catch_CheckInput
 
@@ -692,7 +801,14 @@ void ftCo_Catch_IASA(Fighter_GObj* gobj) {}
 
 void ftCo_CatchDash_IASA(Fighter_GObj* gobj) {}
 
-/// #ftCo_Catch_Phys
+void ftCo_Catch_Phys(Fighter_GObj* gobj)
+{
+    Fighter* fp = GET_FIGHTER(gobj);
+
+    ftCommon_ApplyFrictionGround(fp, p_ftCommonData->x64 *
+                                         fp->co_attrs.gr_friction);
+    ftCommon_ApplyGroundMovement(gobj);
+}
 
 void ftCo_CatchDash_Phys(Fighter_GObj* gobj)
 {
@@ -705,7 +821,13 @@ void ftCo_Catch_Coll(Fighter_GObj* gobj)
     ft_800841B8(gobj, fn_800D8E30);
 }
 
-/// #fn_800D8E30
+void fn_800D8E30(Fighter_GObj* gobj)
+{
+    PAD_STACK(8);
+    fn_800D949C();
+    fn_800D9C64(gobj);
+    ftCo_Fall_Enter(gobj);
+}
 
 void ftCo_CatchDash_Coll(Fighter_GObj* gobj)
 {
@@ -758,11 +880,24 @@ void fn_800D9CE8(Fighter_GObj* arg0)
 
 void ftCo_CatchPull_IASA(Fighter_GObj* gobj) {}
 
-/// #ftCo_CatchPull_Phys
+void ftCo_CatchPull_Phys(Fighter_GObj* gobj)
+{
+    ftCo_Catch_Phys(gobj);
+}
 
-/// #ftCo_CatchPull_Coll
+void ftCo_CatchPull_Coll(Fighter_GObj* gobj)
+{
+    ft_800841B8(gobj, fn_800DA004);
+}
 
-/// #fn_800DA004
+void fn_800DA004(Fighter_GObj* gobj)
+{
+    Fighter* fp = GET_FIGHTER(gobj);
+    Fighter_GObj* victim = fp->victim_gobj;
+    ftCo_800DC920(gobj, victim);
+    ftCo_Fall_Enter(gobj);
+    ftCo_Fall_Enter(victim);
+}
 
 /// #fn_800DA054
 
@@ -776,21 +911,30 @@ void ftCo_CatchWait_Anim(Fighter_GObj* gobj) {}
 
 /// #ftCo_CatchWait_IASA
 
-/// #ftCo_CatchWait_Phys
+void ftCo_CatchWait_Phys(Fighter_GObj* gobj)
+{
+    ftCo_Catch_Phys(gobj);
+}
 
 void ftCo_CatchWait_Coll(Fighter_GObj* gobj)
 {
     ft_800841B8(gobj, fn_800DA440);
 }
 
-/// #fn_800DA440
+void fn_800DA440(Fighter_GObj* gobj)
+{
+    fn_800DA004(gobj);
+}
 
 void fn_800DA490(Fighter_GObj* gobj)
 {
     GET_FIGHTER(gobj)->take_dmg_cb = NULL;
 }
 
-/// #fn_800DA4A0
+void fn_800DA4A0(Fighter_GObj* gobj)
+{
+    fn_800DA054(gobj);
+}
 
 /// #fn_800DA4C0
 
@@ -805,9 +949,15 @@ void ftCo_CatchAttack_Anim(Fighter_GObj* gobj)
 
 void ftCo_CatchAttack_IASA(Fighter_GObj* gobj) {}
 
-/// #ftCo_CatchAttack_Phys
+void ftCo_CatchAttack_Phys(Fighter_GObj* gobj)
+{
+    ftCo_Catch_Phys(gobj);
+}
 
-/// #ftCo_CatchAttack_Coll
+void ftCo_CatchAttack_Coll(Fighter_GObj* gobj)
+{
+    ft_800841B8(gobj, fn_800DA618);
+}
 
 void fn_800DA618(Fighter_GObj* gobj)
 {
@@ -824,7 +974,10 @@ void fn_800DA668(Fighter_GObj* gobj)
     GET_FIGHTER(gobj)->take_dmg_cb = NULL;
 }
 
-/// #fn_800DA678
+void fn_800DA678(Fighter_GObj* gobj)
+{
+    fn_800DA054(gobj);
+}
 
 /// #ftCo_800DA698
 
@@ -837,7 +990,17 @@ void ftCo_CatchCut_Anim(Fighter_GObj* gobj)
 
 void ftCo_CatchCut_IASA(Fighter_GObj* gobj) {}
 
-/// #ftCo_CatchCut_Phys
+void ftCo_CatchCut_Phys(Fighter_GObj* gobj)
+{
+    Fighter* fp = GET_FIGHTER(gobj);
+    if (fp->ground_or_air == GA_Ground) {
+        ftCommon_ApplyFrictionGround(fp, p_ftCommonData->x64 *
+                                             fp->co_attrs.gr_friction);
+        ftCommon_ApplyGroundMovement(gobj);
+        return;
+    }
+    ft_80084DB0(gobj);
+}
 
 /// #ftCo_CatchCut_Coll
 
@@ -907,9 +1070,18 @@ static bool fn_800DAD18(Fighter_GObj* gobj)
 
 /// #ftCo_CapturePulledHi_Phys
 
-/// #ftCo_CapturePulledHi_Coll
+void ftCo_CapturePulledHi_Coll(Fighter_GObj* gobj)
+{
+    Fighter* fp = GET_FIGHTER(gobj);
+    if (!fp->x2226_b2) {
+        ft_80083C00(gobj, fn_800DAECC);
+    }
+}
 
-/// #fn_800DAECC
+static void fn_800DAECC(Fighter_GObj* gobj)
+{
+    fn_800DAEEC(gobj);
+}
 
 /// #fn_800DAEEC
 
@@ -919,13 +1091,29 @@ void ftCo_CapturePulledLw_IASA(Fighter_GObj* gobj) {}
 
 /// #ftCo_CapturePulledLw_Phys
 
-/// #ftCo_CapturePulledLw_Coll
+void ftCo_CapturePulledLw_Coll(Fighter_GObj* gobj)
+{
+    Fighter* fp = GET_FIGHTER(gobj);
+    if (!fp->x2226_b2) {
+        ft_8008403C(gobj, fn_800DB230);
+    }
+}
 
 /// #fn_800DB230
 
 /// #ftCo_800DB368
 
-/// #ftCo_800DB464
+void ftCo_800DB464(Fighter_GObj* gobj)
+{
+    Fighter* fp = GET_FIGHTER(gobj);
+    Vec3 pos;
+    lb_8000B1CC(fp->parts[ftParts_GetBoneIndex(fp, FtPart_XRotN)].joint, NULL,
+                &pos);
+    pos.x = (fp->facing_dir * (fp->x1A70.z * fp->x34_scale.y)) + pos.x;
+    pos.y += fp->x1A70.y * fp->x34_scale.y;
+    pos.z = 0.0f;
+    fp->cur_pos = pos;
+}
 
 /// #ftCo_800DB500
 
@@ -956,18 +1144,69 @@ static void fn_800DB5D8(Fighter_GObj* gobj)
 
 /// #fn_800DB8A4
 
-/// #ftCo_CaptureWaitHi_Anim
+void ftCo_CaptureWaitHi_Anim(Fighter_GObj* gobj)
+{
+    u8 _[8];
+    Fighter* fp;
+    FighterOverlay* fp_ovl;
+    f32 dec;
+    f32 zero;
+    fp = GET_FIGHTER(gobj);
+    fp_ovl = (FighterOverlay*) fp;
+    fp_ovl->x2340 = (f32) ((f64) fp_ovl->x2340 + ftCo_804D90D8);
+    fp_ovl->x1A4C -= *(f32*) ((u8*) p_ftCommonData + 0x3A4);
+    fp_ovl->x2348 =
+        ftCommon_GrabMash(fp, *(f32*) ((u8*) p_ftCommonData + 0x3A8));
+    if (fp_ovl->x1A4C <= ftCo_804D90D0) {
+        ftCo_800DA698(fp_ovl->x1A58, 0);
+        if (fp_ovl->x234C != 0 || fn_800DC044(gobj)) {
+            fn_800DC070(gobj);
+            return;
+        }
+
+        ftCo_CaptureCut_Enter(gobj);
+        return;
+    }
+
+    zero = ftCo_804D90D0;
+    if (fp_ovl->x2344 != zero) {
+        dec = ftCo_804D90D4;
+        fp_ovl->x2344 -= dec;
+        if (fp_ovl->x2344 <= zero && fp_ovl->x2348 == 0) {
+            ftAnim_SetAnimRate(gobj, dec);
+            fp_ovl->x2344 = ftCo_804D90D0;
+        }
+    }
+
+    if (*(volatile f32*) &fp_ovl->x2344 <= ftCo_804D90D0 && fp_ovl->x2348 != 0)
+    {
+        fp_ovl->x2344 = *(f32*) ((u8*) p_ftCommonData + 0x3B0);
+        ftAnim_SetAnimRate(gobj, *(f32*) ((u8*) p_ftCommonData + 0x3B4));
+    }
+}
 
 void ftCo_CaptureWaitHi_IASA(Fighter_GObj* gobj)
 {
     fn_800DC014(gobj);
 }
 
-/// #ftCo_CaptureWaitHi_Phys
+#pragma push
+#pragma dont_inline on
+void ftCo_CaptureWaitHi_Phys(Fighter_GObj* gobj)
+{
+    fn_800DAD18(gobj);
+}
+#pragma pop
 
-/// #ftCo_CaptureWaitHi_Coll
+void ftCo_CaptureWaitHi_Coll(Fighter_GObj* gobj)
+{
+    ftCo_CapturePulledHi_Coll(gobj);
+}
 
-/// #fn_800DBAC4
+void fn_800DBAC4(Fighter_GObj* gobj)
+{
+    fn_800DBBF8(gobj);
+}
 
 /// #fn_800DBAE4
 
@@ -985,7 +1224,10 @@ void ftCo_CaptureWaitLw_IASA(Fighter_GObj* gobj)
 
 /// #ftCo_CaptureWaitLw_Phys
 
-/// #ftCo_CaptureWaitLw_Coll
+void ftCo_CaptureWaitLw_Coll(Fighter_GObj* gobj)
+{
+    ftCo_CapturePulledLw_Coll(gobj);
+}
 
 /// #fn_800DBED4
 
@@ -995,11 +1237,24 @@ void ftCo_CaptureWaitLw_IASA(Fighter_GObj* gobj)
 
 /// #fn_800DC070
 
-/// #ftCo_CaptureJump_Anim
+void ftCo_CaptureJump_Anim(Fighter_GObj* gobj)
+{
+    Fighter* fp = GET_FIGHTER(gobj);
+    fp->mv.co.buryjump.x0 += 1;
+    if (!ftAnim_IsFramesRemaining(gobj)) {
+        ftCo_Fall_Enter(gobj);
+    }
+}
 
 /// #ftCo_CaptureJump_IASA
 
-/// #ftCo_CaptureJump_Phys
+void ftCo_CaptureJump_Phys(Fighter_GObj* gobj)
+{
+    Fighter* fp = gobj->user_data;
+    PAD_STACK(8);
+    ftCommon_Fall(fp, fp->co_attrs.grav, fp->co_attrs.terminal_vel);
+    ftCommon_8007D268(fp);
+}
 
 void ftCo_CaptureJump_Coll(Fighter_GObj* gobj)
 {

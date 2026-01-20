@@ -3,11 +3,11 @@
 #include <placeholder.h>
 #include <platform.h>
 
-#include "it/it_26B1.h"
+#include "it/inlines.h"
 #include "it/it_266F.h"
+#include "it/it_26B1.h"
 #include "it/it_2725.h"
 #include "it/item.h"
-#include "it/inlines.h"
 
 /// #it_80290938
 
@@ -21,7 +21,13 @@
 
 /// #it_80290DD4
 
-/// #it_80290E78
+void it_80290E78(Item_GObj* gobj)
+{
+    Item* ip = GET_ITEM(gobj);
+    itResetVelocity(ip);
+    it_8026B390(gobj);
+    Item_80268E5C(gobj, 0, ITEM_ANIM_UPDATE);
+}
 
 bool itFlipper_UnkMotion0_Anim(Item_GObj* gobj)
 {

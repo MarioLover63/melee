@@ -1,10 +1,10 @@
 #include "itkyasarinegg.h"
 
+#include "it/inlines.h"
 #include "it/it_266F.h"
 #include "it/it_26B1.h"
 #include "it/it_2725.h"
 #include "it/item.h"
-#include "it/inlines.h"
 
 void itKyasarinegg_UnkMotion1_Coll(Item_GObj* gobj)
 {
@@ -43,6 +43,14 @@ void it_2725_Logic28_Dropped(Item_GObj* gobj)
 void itKyasarinegg_UnkMotion4_Anim(Item_GObj* gobj)
 {
     it_802751D8(gobj);
+}
+
+bool itKyasarinegg_UnkMotion0_Coll(Item_GObj* gobj)
+{
+    if (it_8026DAA8(gobj) & 0xF) {
+        it_802EFCC0(gobj);
+    }
+    return false;
 }
 
 void it_2725_Logic28_PickedUp(Item_GObj* gobj)

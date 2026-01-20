@@ -10,22 +10,22 @@
 
 /// @note name found @ 80029070
 struct CmSubject {
-/* +00 */ CmSubject* next;
-/* +04 */ CmSubject* prev;
-/* +08 */ bool x8;
-/* +0C:0 */ u8 xC_b0 : 1;
-/* +0C:1 */ u8 xC_b1 : 1;
-/* +0C:2 */ u8 xC_b2 : 1;
-/* +0E */ s16 xE;
-/* +10 */ Vec3 x10;  // might be Vec2?
-/* +1C */ Vec3 x1C;  // position?
-/* +28 */ float x28; // direction?
-/* +2C */ Vec2 x2C;
-/* +34 */ Vec3 x34; // size?
-/* +40 */ Vec2 x40;
-/* +48 */ Vec3 x48;
-/* +54 */ Vec3 x54;
-/* +60 */ Vec3 x60;
+    /* +00 */ CmSubject* next;
+    /* +04 */ CmSubject* prev;
+    /* +08 */ bool x8;
+    /* +0C:0 */ u8 xC_b0 : 1;
+    /* +0C:1 */ u8 xC_b1 : 1;
+    /* +0C:2 */ u8 xC_b2 : 1;
+    /* +0E */ s16 xE;
+    /* +10 */ Vec3 x10;  // might be Vec2?
+    /* +1C */ Vec3 x1C;  // position?
+    /* +28 */ float x28; // direction?
+    /* +2C */ Vec2 x2C;
+    /* +34 */ Vec3 x34; // size?
+    /* +40 */ Vec2 x40;
+    /* +48 */ Vec3 x48;
+    /* +54 */ Vec3 x54;
+    /* +60 */ Vec3 x60;
 };
 
 struct CameraTransformState {
@@ -126,11 +126,23 @@ struct Camera {
     /* 0x341:3 */ u8 x341_b3_b4 : 2;
     /* 0x341:5 */ u8 x341_b5_b6 : 2;
     /* 0x341:7 */ u8 x341_b7 : 1;
-    /* 0x342 */ char pad_342[0x350 - 0x342]; /* maybe part of unk_341[0x57]? */
+    /* 0x342 */ char x342_pad[2];
+    /* 0x344 */ union {
+        s32 s32;
+        Vec3 vec;
+        s32 (*cb)(Vec3*);
+    } x344;
     /* 0x350 */ Vec3 x350;
     /* 0x35C */ union {
         Vec3 vec;
         s32 (*cb)(Vec3*);
+        struct {
+            u8 b0 : 1;
+            u8 b1 : 1;
+            u8 b2 : 1;
+            u8 pad;
+            s16 x2;
+        } bits;
     } x35C;
     /* 0x368 */ Vec3 x368;
     /* 0x374 */ f32 x374;
