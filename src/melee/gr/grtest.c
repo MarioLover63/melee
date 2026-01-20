@@ -1,9 +1,8 @@
-#include "gr/grtest.h"
-
 #include <platform.h>
 
 #include "baselib/forward.h"
-#include "gr/forward.h"
+
+#include "gr/grtest.h"
 
 #include "gr/granime.h"
 #include "gr/grdisplay.h"
@@ -37,32 +36,29 @@ StageData grTe_803E5764 = { 0x01,
                             "/GrTe.dat",
                             grTest_80206E30,
                             grTest_80206E2C,
-                            grTest_UnkStage0_OnLoad,
-                            grTest_UnkStage0_OnStart,
+                            grTest_80207014,
+                            grTest_80207018,
                             grTest_8020703C,
                             grTest_8020740C,
                             grTest_80207414,
                             1,
-                            grTe_803E56B8,
-                            13 };
+                            grTe_803E56B8 };
 
 float grTe_804D6A48;
 
-void grTest_80206E2C(bool unused) {}
+void grTest_80206E2C(int unused) {}
 
 void grTest_80206E30(void)
 {
-    HSD_GObj* gobj;
+    HSD_GObj* r3;
     HSD_JObj* jobj;
-    PAD_STACK(8);
-
     stage_info.unk8C.b4 = 0;
     stage_info.unk8C.b5 = 1;
     grTest_80207044(0);
-    gobj = grTest_80207044(2);
-    GET_GROUND(gobj)->x8_callback = grTest_802073B0;
-    gobj = grTest_80207044(1);
-    jobj = GET_JOBJ(gobj);
+    r3 = grTest_80207044(2);
+    GET_GROUND(r3)->x8_callback = grTest_802073B0;
+    r3 = grTest_80207044(1);
+    jobj = r3->hsd_obj;
     HSD_JObjSetScaleX(jobj, 80.0);
     HSD_JObjSetScaleY(jobj, 80.0);
     HSD_JObjSetScaleZ(jobj, 80.0);
@@ -70,9 +66,9 @@ void grTest_80206E30(void)
     Ground_801C3BB4();
 }
 
-void grTest_UnkStage0_OnLoad(void) {}
+void grTest_80207014(void) {}
 
-void grTest_UnkStage0_OnStart(void)
+void grTest_80207018(void)
 {
     grZakoGenerator_801CAE04(false);
 }
@@ -104,28 +100,28 @@ HSD_GObj* grTest_80207044(int gobj_id)
             HSD_GObjProc_8038FD54(gobj, callbacks->callback2, 4);
         }
     } else {
-        OSReport("%s:%d: couldn t get gobj(id=%d)\n", "grtest.c", 209,
+        OSReport("%s:%d: couldn t get gobj(id=%d)\n", "grtest.c", 0x35C,
                  gobj_id);
     }
     return gobj;
 }
 
-void grTest_80207130(Ground_GObj* gobj)
+void grTest_80207130(HSD_GObj* gobj)
 {
     Ground* gp = GET_GROUND(gobj);
     grAnime_801C8138(gobj, gp->map_id, 0);
 }
 
-bool grTest_8020715C(Ground_GObj* gobj)
+bool grTest_8020715C(HSD_GObj* gobj)
 {
     return false;
 }
 
-void grTest_80207164(Ground_GObj* gobj) {}
+void grTest_80207164(HSD_GObj* gobj) {}
 
-void grTest_80207168(Ground_GObj* gobj) {}
+void grTest_80207168(HSD_GObj* gobj) {}
 
-void grTest_8020716C(Ground_GObj* gobj)
+void grTest_8020716C(HSD_GObj* gobj)
 {
     Ground* gp = GET_GROUND(gobj);
     HSD_JObj* jobj = GET_JOBJ(gobj);
@@ -134,18 +130,16 @@ void grTest_8020716C(Ground_GObj* gobj)
     grAnime_801C8138(gobj, gp->map_id, 0);
 }
 
-bool grTest_802071BC(Ground_GObj* gobj)
+bool grTest_802071BC(HSD_GObj* gobj)
 {
     return false;
 }
 
-void grTest_802071C4(Ground_GObj* gobj)
+void grTest_802071C4(HSD_GObj* gobj)
 {
     HSD_JObj* iVar2;
     u32 uVar3;
     HSD_PadStatus* pad;
-    PAD_STACK(16);
-
     if ((HSD_PadMasterStatus[1].trigger & 0x100) != 0) {
         iVar2 = Ground_801C3FA4(gobj, 0x10);
         if (iVar2) {
@@ -154,7 +148,7 @@ void grTest_802071C4(Ground_GObj* gobj)
             } else {
                 HSD_JObjSetFlags(iVar2, 0x10);
             }
-            grTe_804D6A48 = 0.0f;
+            grTe_804D6A48 = (float) 0.0;
         }
     }
     pad = &HSD_PadMasterStatus[2];
@@ -166,19 +160,19 @@ void grTest_802071C4(Ground_GObj* gobj)
             } else {
                 HSD_JObjSetFlags(iVar2, 0x10);
             }
-            grTe_804D6A48 = 0.0f;
+            grTe_804D6A48 = (float) 0.0;
         }
     }
     pad = &HSD_PadMasterStatus[1];
     uVar3 = pad->button;
     if (uVar3 & 0x400) {
-        if (grTe_804D6A48 > -1.2217305f) {
-            grTe_804D6A48 -= 0.08726646f;
+        if (grTe_804D6A48 > (float) -1.2217305) {
+            grTe_804D6A48 = grTe_804D6A48 - (float) 0.08726646;
         }
     }
     if (uVar3 & 0x800) {
-        if (grTe_804D6A48 < 1.2217305f) {
-            grTe_804D6A48 += 0.08726646f;
+        if (grTe_804D6A48 < (float) 1.2217305) {
+            grTe_804D6A48 = grTe_804D6A48 + (float) 0.08726646;
         }
     }
     iVar2 = Ground_801C3FA4(gobj, 11);
@@ -187,29 +181,29 @@ void grTest_802071C4(Ground_GObj* gobj)
     }
 }
 
-void grTest_802073AC(Ground_GObj* gobj) {}
+void grTest_802073AC(HSD_GObj* gobj) {}
 
 void grTest_802073B0(HSD_GObj* gobj)
 {
     Ground_801C2FE0(gobj);
 }
 
-void grTest_802073D0(Ground_GObj* gobj)
+void grTest_802073D0(HSD_GObj* gobj)
 {
     Ground* gp = GET_GROUND(gobj);
     grAnime_801C8138(gobj, gp->map_id, 0);
 }
 
-bool grTest_802073FC(Ground_GObj* gobj)
+bool grTest_802073FC(HSD_GObj* gobj)
 {
     return false;
 }
 
-void grTest_80207404(Ground_GObj* gobj) {}
+void grTest_80207404(HSD_GObj* gobj) {}
 
-void grTest_80207408(Ground_GObj* gobj) {}
+void grTest_80207408(HSD_GObj* gobj) {}
 
-struct DynamicsDesc* grTest_8020740C(enum_t unused)
+struct DynamicsDesc* grTest_8020740C(int unused)
 {
     return false;
 }
